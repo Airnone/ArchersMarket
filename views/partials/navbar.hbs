@@ -1,0 +1,28 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="logo-container">
+            <img src="/images/archerslogo.webp" alt="Archers Market Logo" class="logo-icon">
+            <span class="logo-text">Archers Market</span>
+        </a>
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/browse">Browse</a>
+            
+            {{#if user}}
+                <a href="/sell">Sell</a>
+                <a href="/profile" class="profile-link">
+                    <img src="{{user.profileImage}}" class="profile-icon" alt="Profile"
+                        onerror="this.src='/images/default.png'">
+                    {{user.fullName}}
+                </a>
+                <a href="/api/auth/logout" class="logout-link">Logout</a>
+            {{else}}
+                <a href="/login" class="login-link">Login</a>
+                <a href="/register" class="register-link">Register</a>
+            {{/if}}
+        </div>
+    </div>
+</nav>

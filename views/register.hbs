@@ -1,0 +1,37 @@
+<div style="height: 3rem;"></div>
+<section class="register-section">
+    <h2>Create an Account</h2>
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="dlsuEmail">DLSU Email</label>
+            <input type="email" id="dlsuEmail" name="dlsuEmail" placeholder="username@dlsu.edu.ph" required>
+        </div>
+
+        <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input type="text" id="studentId" name="studentId" placeholder="Enter your student ID" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a password" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Create Account</button>
+    </form>
+
+    <div id="registerPopup" class="popup success" style="display: none;"></div>
+
+    <p class="sign-in-link">Already have an account? <a href="/login">Sign In</a></p>
+</section>
+

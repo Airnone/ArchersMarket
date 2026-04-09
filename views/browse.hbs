@@ -1,0 +1,65 @@
+<div class="page-container"> <!-- Added wrapper -->
+
+  <h2 class="header">Browse Listings</h2>
+
+  <!-- Search Bar & Category Filter -->
+  <div class="search-filter">
+    <input type="text" id="searchBar" placeholder="Search items...">
+    <select id="categoryFilter">
+      <option value="">All Categories</option>
+      <option value="textbooks">Textbooks</option>
+      <option value="clothes">Clothes</option>
+      <option value="supplies">School Supplies</option>
+      <option value="electronics">Electronics</option>
+      <option value="others">Miscellaneous</option>
+    </select>
+    <button id="searchButton">Search</button>
+  </div>
+
+  <!-- Listings Grid -->
+  <section class="listings">
+    <div class="listings-inner">
+      <h2>All Listings</h2>
+      <div class="listings-grid">
+        {{#each listings}}
+        <div class="listing-card" data-category="{{this.category}}">
+          <a href="/product/{{this._id}}">
+            <img 
+              src="{{#if this.image}}{{this.image}}{{else}}/uploads/listings/default.png{{/if}}" 
+              alt="{{this.title}}" 
+              class="listing-image" 
+              onerror="this.src='/uploads/listings/default.png'">
+            <div class="listing-details">
+              <h3>{{this.title}}</h3>
+              <p class="listing-price">₱{{this.price}}</p>
+              <div class="listing-meta">
+                <span class="category-badge">{{capitalize this.category}}</span>
+                <span class="date">{{formatDate this.createdAt}}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+
+</div> <!-- End page-container -->
+
+<!-- JavaScript for Filtering Listings -->
+<script>
+  document.getElementById("searchButton").addEventListener("click", function () {
+    let searchTerm = document.getElementById("searchBar").value.toLowerCase();
+    let category = document.getElementById("categoryFilter").value;
+    let listings = document.querySelectorAll(".listing-card");
+
+    listings.forEach(card => {
+      let title = card.querySelector("h3").innerText.toLowerCase();
+      let categoryTag = card.getAttribute("data-category");
+      let matchesSearch = title.includes(searchTerm);
+      let matchesCategory = category === "" || categoryTag === category;
+
+      card.style.display = (matchesSearch && matchesCategory) ? "block" : "none";
+    });
+  });
+</script>

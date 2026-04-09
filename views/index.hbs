@@ -1,0 +1,76 @@
+{{!< main}} <!-- Inherits from main.hbs -->
+
+{{#contentFor "head"}}
+    <!-- Optional: Add home page specific meta tags or CSS -->
+    <meta name="description" content="Buy and sell textbooks, clothes, and more within the DLSU community">
+{{/contentFor}}
+
+<div class="practice">
+  <div class="practice-background"></div>
+  <div class="practice-content">
+      <h1>Your Trusted DLSU Student Marketplace</h1>
+      <p>Buy and sell textbooks, clothes, and more within the DLSU community</p>
+      <div class="practice-buttons">
+          <a href="/browse" class="btn btn-primary">Start Shopping</a>
+          <a href="/sell" class="btn btn-secondary">Post an Item</a>
+      </div>
+  </div>
+</div>
+
+<section class="categories">
+    <h2>Popular Categories</h2>
+    <div class="category-grid">
+        {{#each categories}}
+        <!-- Updated href to include category slug in the URL for filtering -->
+        <a href="/browse?category={{this.slug}}" class="category-card" data-category="{{this.slug}}">
+            <div class="category-icon">{{this.icon}}</div>
+            <h3>{{this.name}}</h3>
+            <p>{{this.description}}</p>
+        </a>
+        {{/each}}
+    </div>
+</section>
+
+<section class="listings">
+  <div class="listings-inner">
+    <h2>Recent Listings</h2>
+    <div class="listings-grid">
+      {{#each listings}}
+      <div class="listing-card">
+        <a href="/product/{{this._id}}">
+          <img 
+            src="{{#if this.image}}{{this.image}}{{else}}/uploads/listings/default.png{{/if}}" 
+            alt="{{this.title}}" 
+            class="listing-image" 
+            onerror="this.src='/uploads/listings/default.png'">
+          <div class="listing-details">
+            <h3>{{this.title}}</h3>
+            <p class="listing-price">₱{{this.price}}</p>
+            <div class="listing-meta">
+              <span class="category-badge">{{capitalize this.category}}</span>
+              <span class="date">{{formatDate this.createdAt}}</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</section>
+
+{{#contentFor "scripts"}}
+<script>
+    // Home page specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Home page initialized');
+        
+        // Example: Add click handlers for category cards
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.dataset.category;
+                // You could add analytics tracking here if needed
+            });
+        });
+    });
+</script>
+{{/contentFor}}

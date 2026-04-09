@@ -1,0 +1,13 @@
+{{! views/error.hbs }}
+
+<div class="container error-container">
+  <h1>{{title}}</h1>
+  <div class="alert alert-danger">
+    {{message}}
+  </div>
+  {{#if error}}
+    <pre class="error-stack">{{error.stack}}</pre>
+  {{/if}}
+  <a href="/" class="btn btn-primary">Return Home</a>
+</div>
+

@@ -1,0 +1,113 @@
+<section class="profile-section">
+  <div class="profile-container">
+  <h1>My Profile</h1>
+  <div class="profile-info">
+    
+    <!-- Profile Picture -->
+    <div class="profile-picture-section">
+      <div class="profile-picture">
+        <img src="{{profile.profileImage}}" alt="Profile Picture" id="profileImage"
+             onerror="this.onerror=null; this.src='/images/default.png'">
+      </div>
+    </div>
+
+    <!-- Profile Details -->
+    <div class="profile-card">
+      <h2>{{user.fullName}}</h2>
+      <p><strong>ID:</strong> <span>{{user.studentId}}</span></p>
+      <p><strong>Email:</strong> <span>{{user.dlsuEmail}}</span></p>
+      <p><strong>Contact:</strong> <span>{{profile.contactNumber}}</span></p>
+      <p><strong>Facebook:</strong> <a href="{{profile.facebook}}" target="_blank">{{profile.facebook}}</a></p>
+      <p><strong>Bio:</strong> <span>{{profile.bio}}</span></p>
+    </div>
+
+    <!-- Edit Button -->
+    <div class="profile-actions">
+      <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
+      <!--<button class="btn-secondary" id="changePasswordBtn">Change Password</button> -->
+    </div>
+    <!-- Change pass modal -->
+    
+    <div id="changePasswordModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Change Password</h2>
+      <form id="changePasswordForm">
+        <label for="oldPassword">Old Password</label>
+        <input type="password" id="oldPassword" name="oldPassword" required>
+
+        <label for="newPassword">New Password</label>
+        <input type="password" id="newPassword" name="newPassword" required>
+
+        <label for="confirmPassword">Confirm New Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Update Password</button>
+          <button type="button" class="btn-secondary" id="cancelChangePassword">Cancel</button>
+        </div>
+      </form>
+        </div>
+    </div>
+    
+
+    <!-- User Listings -->
+    <div class="profile-listings">
+      <h3 id="title">My Listings</h3>
+
+      {{#if listings.length}}
+        <div class="listings-grid">
+          {{#each listings}}
+          <div class="listing-card">
+            <a href="/product/{{this._id}}">
+              <img src="{{#if this.image}}{{this.image}}{{else}}/uploads/listings/default.png{{/if}}"
+                   alt="{{this.title}}" class="listing-image"
+                   onerror="this.src='/uploads/listings/default.png'">
+              <div class="listing-details">
+                <h3>{{this.title}}</h3>
+                <p class="listing-price">₱{{this.price}}</p>
+                <span class="category-badge">{{capitalize this.category}}</span>
+              </div>
+            </a>
+          </div>
+          {{/each}}
+        </div>
+      {{else}}
+        <p>You haven't listed anything yet.</p>
+      {{/if}}
+    </div>
+  </div>
+
+  <!-- Edit Modal (kept as is) -->
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <h2>Edit Profile</h2>
+      <form id="editProfileForm" enctype="multipart/form-data">
+        <label for="editFullName">Full Name</label>
+        <input type="text" id="editFullName" name="fullName" placeholder="Enter your full name">  
+
+        <label for="editContact">Contact Number</label>
+        <input type="text" id="editContact" name="contactNumber" placeholder="Enter contact number">
+
+        <label for="editFacebook">Facebook Link</label>
+        <input type="text" id="editFacebook" name="facebook" placeholder="Enter Facebook URL">
+
+        <label for="editBio">Bio</label>
+        <textarea id="editBio" name="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+
+        <div class="file-upload-wrapper">
+          <label for="uploadProfilePic" class="custom-upload-button">Upload Picture</label>
+          <span id="uploadFileName">No file chosen</span>
+          <input type="file" id="uploadProfilePic" name="profileImage" accept="image/*" hidden>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary" id="saveProfileBtn">Save</button>
+          <button type="button" class="btn-secondary" id="cancelProfileBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+  
+  <div id="profilePopup" class="popup success" style="display: none;"></div>
+</section>

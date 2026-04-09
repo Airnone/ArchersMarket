@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}} | Archers Market</title>
+  <link rel="icon" type="image/png" href="/images/weblogo.png">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    window.authState = {
+      isAuthenticated: {{#if user}}true{{else}}false{{/if}},
+      user: {{#if user}}{
+        id: '{{user._id}}',
+        fullName: '{{user.fullName}}',
+        email: '{{user.dlsuEmail}}'
+      }{{else}}null{{/if}}
+    };
+  </script>
+</head>
+<body>
+  {{> navbar}}
+
+  {{#if success_msg}}
+    <div class="alert alert-success">{{success_msg}}</div>
+  {{/if}}
+  {{#if error_msg}}
+    <div class="alert alert-danger">{{error_msg}}</div>
+  {{/if}}
+
+  {{{body}}}
+
+  {{> footer}}
+
+  <!-- 🔽 INSERT LOGIN MODAL HERE -->
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-box">
+    <span class="close-btn" id="closeLogin">&times;</span>
+
+    <!-- Centered Login Title -->
+    <h2 class="login-title">Login</h2>
+
+    <form id="loginForm" class="login-form">
+      <input type="email" name="dlsuEmail" placeholder="DLSU Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+
+      <!-- Centered Button -->
+      <div class="login-button-wrapper">
+        <button type="submit" class="btn-primary large-btn">Login</button>
+      </div>
+    </form>
+
+    <!-- Centered Register Link -->
+    <div class="register-message">
+      <p>Don't have an account? <a href="/register">Register</a></p>
+    </div>
+
+    <div class="error-message"></div>
+  </div>
+</div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
+<script>
+  // Force preload of background image used in CSS
+  const bg = new Image();
+  bg.src = '/images/practice-background.webp';
+</script>
