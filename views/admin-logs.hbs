@@ -1,0 +1,53 @@
+<div class="container" style="padding: 40px 20px; max-width: 1200px; margin: auto;">
+    <h1 style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">🛡️ System Audit Logs</h1>
+    
+    <form action="/admin/logs" method="GET" style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px;">
+        <label for="eventType" style="font-weight: bold; margin-right: 10px;">Filter by Event Type:</label>
+        <select name="eventType" id="eventType" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="ALL" {{#if (eq currentFilter "ALL")}}selected{{/if}}>All Events</option>
+            <option value="AUTH_SUCCESS" {{#if (eq currentFilter "AUTH_SUCCESS")}}selected{{/if}}>Authentication Success</option>
+            <option value="AUTH_FAILURE" {{#if (eq currentFilter "AUTH_FAILURE")}}selected{{/if}}>Authentication Failure</option>
+            <option value="ACCESS_DENIED" {{#if (eq currentFilter "ACCESS_DENIED")}}selected{{/if}}>Access Denied</option>
+            <option value="VALIDATION_ERROR" {{#if (eq currentFilter "VALIDATION_ERROR")}}selected{{/if}}>Validation Error</option>
+            <option value="SYSTEM_ERROR" {{#if (eq currentFilter "SYSTEM_ERROR")}}selected{{/if}}>System Error</option>
+        </select>
+        <button type="submit" class="btn" style="background-color: #333; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Filter</button>
+        <a href="/admin/logs" style="margin-left: 10px; color: #d9534f; text-decoration: none;">Clear Filter</a>
+    </form>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <thead style="background-color: #333; color: white;">
+                <tr>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Timestamp</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Event Type</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">User (Email)</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">IP Address</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each logs}}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 12px; font-size: 0.9em; color: #555;">{{formatDate this.timestamp "YYYY-MM-DD HH:mm:ss"}}</td>
+                    <td style="padding: 12px; font-weight: bold; color: 
+                        {{#if (eq this.eventType 'AUTH_SUCCESS')}}#5cb85c
+                        {{else if (eq this.eventType 'AUTH_FAILURE')}}#f0ad4e
+                        {{else if (eq this.eventType 'SYSTEM_ERROR')}}#d9534f
+                        {{else if (eq this.eventType 'ACCESS_DENIED')}}#d9534f
+                        {{else}}#337ab7{{/if}};">
+                        {{this.eventType}}
+                    </td>
+                    <td style="padding: 12px;">{{#if this.user}}{{this.user.dlsuEmail}}{{else}}<span style="color: #999;">N/A</span>{{/if}}</td>
+                    <td style="padding: 12px; font-family: monospace;">{{this.ipAddress}}</td>
+                    <td style="padding: 12px;">{{this.description}}</td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="5" style="padding: 20px; text-align: center; color: #777;">No logs found matching your criteria.</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
