@@ -1,13 +1,12 @@
 {{! views/error.hbs }}
 
-<div class="container error-container">
-  <h1>{{title}}</h1>
-  <div class="alert alert-danger">
-    {{message}}
-  </div>
-  {{#if error}}
-    <pre class="error-stack">{{error.stack}}</pre>
-  {{/if}}
-  <a href="/" class="btn btn-primary">Return Home</a>
+<div class="container" style="text-align: center; padding: 100px 20px;">
+    <h1 style="color: #d9534f; font-size: 3rem;">Oops!</h1>
+    <h2>{{title}}</h2>
+    <p style="font-size: 1.2rem; color: #555;">{{message}}</p>
+    <br>
+    <a href="/" class="btn" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+        Return to Homepage
+    </a>
 </div>
 

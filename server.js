@@ -14,6 +14,7 @@ const connectDB = require('./config/db');
 const moment = require('moment');
 const flash = require('connect-flash');
 const Profile = require('./models/profile');
+const { logEvent } = require('./utils/logger');
 require("dotenv").config();
 require('./config/passport');
 const exphbs = require('express-handlebars');
@@ -105,12 +106,33 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 
+// 7. Error Handling (Required Controls)
 
+// Handle 404 - Page Not Found
+app.use((req, res, next) => {
+  res.status(404).render('404', { 
+    title: '404 - Not Found',
+    message: 'The resource you are looking for could not be found or you do not have access to it.'
+  });
+});
 
-// 7. Error Handling (Optional)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).render('error');
+// Secure Global Error Handler (Requirement 2.4.1 & 2.4.2)
+app.use(async (err, req, res, next) => {
+  // Log the actual stack trace and error message internally to your database
+  // This allows administrators to debug without exposing the vulnerability to the user
+  await logEvent(
+    'SYSTEM_ERROR', 
+    `Application Error: ${err.message} | Route: ${req.originalUrl}`, 
+    req, 
+    req.user ? req.user._id : null
+  );
+
+  // Serve a generic response to the user
+  // STRICT RULE: Never pass 'err', 'err.message', or 'err.stack' to the view engine
+  res.status(500).render('error', {
+    title: 'Internal Server Error',
+    message: 'An unexpected system error occurred. Please try again later.'
+  });
 });
 
 // 8. Server Start
