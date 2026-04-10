@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const multer = require('multer');
 const path = require('path');
+const authController = require('../controllers/authController');
 
 // Multer setup for profile picture upload
 const storage = multer.diskStorage({
@@ -15,9 +16,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Routes
-router.get('/data', userController.getUserProfileData);
-router.post('/update', upload.single('profileImage'), userController.updateUserProfile);
+// Routes (Protected)
+router.get(
+  '/data', 
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'), 
+  userController.getUserProfileData
+);
 
+router.post(
+  '/update', 
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'), 
+  upload.single('profileImage'), 
+  userController.updateUserProfile
+);
 
 module.exports = router;

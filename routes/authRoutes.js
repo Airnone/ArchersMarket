@@ -1,50 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
-const User = require('../models/user');
-const Profile = require('../models/profile');
 const authController = require('../controllers/authController');
-const multer = require('multer');
-const path = require('path');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/uploads/profile-pictures');
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9) + ext;
-    cb(null, uniqueName);
-  }
-});
-
-const upload = multer({ storage });
-
-
-
-// Register
+// Register (Public)
 router.post('/register', authController.register);
 
-// Login
+// Login (Public)
 router.post('/login', authController.login);
 
+// POST Change Password (Protected)
+router.post(
+  '/change-password',
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'),
+  authController.changePassword
+);
 
-// Logout
-router.get('/logout', (req, res, next) => {
-  req.logout((err) => {
-    if (err) return next(err);
-    req.flash('success_msg', 'Logged out successfully');
-    res.redirect('/');
-  });
-});
+// POST Reset Password via Security Question (Public)
+router.post('/reset-password', authController.resetPasswordWithQuestion);
 
-// Check auth status
+// Logout (Protected - Any logged-in user)
+router.get(
+  '/logout', 
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'), 
+  (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      req.flash('success_msg', 'Logged out successfully');
+      res.redirect('/');
+    });
+  }
+);
+
+// Check auth status (Public/Utility)
 router.get('/status', (req, res) => {
   res.json({ user: req.user || null });
 });
-
-
-
-
 
 module.exports = router;

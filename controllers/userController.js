@@ -21,7 +21,6 @@ const getUserProfileData = async (req, res) => {
       listings: [] // you can populate this later
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -61,7 +60,6 @@ const updateUserProfile = async (req, res) => {
 
     res.json({ message: 'Profile updated!' });
   } catch (err) {
-    console.error('Update failed:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

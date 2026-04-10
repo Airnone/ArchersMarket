@@ -4,7 +4,7 @@ const Listing = require('../models/listing');
 const path = require('path');
 const multer = require('multer');
 const authController = require('../controllers/authController');
-const listingController = require('../controllers/listingController'); // ✅ add this
+const listingController = require('../controllers/listingController');
 
 // Set storage location and filename
 const storage = multer.diskStorage({
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// GET all listings (API endpoint)
+// GET all listings (API endpoint - Public)
 router.get('/', async (req, res) => {
   try {
     const listings = await Listing.find().populate('seller', 'fullName');
@@ -31,49 +31,27 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST create new listing
+// POST create new listing (Protected)
 router.post(
   '/',
-  authController.requireAuth,
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'),
   upload.single('image'),
-  async (req, res) => {
-    try {
-      const { title, description, price, category, condition } = req.body;
-
-      const newListing = new Listing({
-        title,
-        description,
-        price,
-        category,
-        condition,
-        image: req.file ? `/uploads/listings/${req.file.filename}` : '/uploads/listings/default.png',
-        seller: req.user._id,
-        date: new Date().toISOString()
-      });
-
-      await newListing.save();
-      res.redirect('/sell?success=true');  
-    } catch (err) {
-      console.error("❌ Error creating listing:", err);
-      res.status(400).send('Error creating listing');
-    }
-  }
+  listingController.createListing // We now point this directly to our secure controller
 );
 
-// POST update listing
-router.post('/:id/edit',
-  authController.requireAuth,
+// POST update listing (Protected)
+router.post(
+  '/:id/edit',
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'),
   upload.single('image'),
   listingController.editListing
 );
 
-
-// DELETE listing
+// DELETE listing (Protected)
 router.post(
   '/:id/delete',
-  authController.requireAuth,
+  authController.authorizeRoles('Administrator', 'Manager', 'Customer'),
   listingController.deleteListing
 );
-
 
 module.exports = router;
