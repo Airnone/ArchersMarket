@@ -3,7 +3,6 @@
   <h1>My Profile</h1>
   <div class="profile-info">
     
-    <!-- Profile Picture -->
     <div class="profile-picture-section">
       <div class="profile-picture">
         <img src="{{profile.profileImage}}" alt="Profile Picture" id="profileImage"
@@ -11,7 +10,6 @@
       </div>
     </div>
 
-    <!-- Profile Details -->
     <div class="profile-card">
       <h2>{{user.fullName}}</h2>
       <p><strong>ID:</strong> <span>{{user.studentId}}</span></p>
@@ -21,22 +19,42 @@
       <p><strong>Bio:</strong> <span>{{profile.bio}}</span></p>
     </div>
 
-    <!-- Edit Button -->
+    <div class="profile-card" style="margin-top: 20px; background-color: #fcfcfc; border-left: 4px solid #333;">
+      <h3 style="margin-bottom: 10px; font-size: 1.1em; color: #444;">🛡️ Recent Security Activity</h3>
+      
+      <p><strong>Last Successful Login:</strong> 
+        <span style="color: #28a745;">
+          {{#if lastSuccess}}{{formatDate lastSuccess "MMMM Do YYYY, h:mm:ss a"}}{{else}}First time logging in.{{/if}}
+        </span>
+      </p>
+      
+      <p><strong>Last Failed Login:</strong> 
+        <span style="color: #d9534f;">
+          {{#if lastFailed}}{{formatDate lastFailed "MMMM Do YYYY, h:mm:ss a"}}{{else}}No failed attempts recorded.{{/if}}
+        </span>
+      </p>
+    </div>
+
     <div class="profile-actions">
       <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
-      <!--<button class="btn-secondary" id="changePasswordBtn">Change Password</button> -->
+      <button class="btn-secondary" id="changePasswordBtn">Change Password</button> 
     </div>
-    <!-- Change pass modal -->
-    
+
     <div id="changePasswordModal" class="modal" style="display: none;">
     <div class="modal-content">
       <h2>Change Password</h2>
+      
+      <div id="password-message" style="margin-bottom: 15px; padding: 10px; border-radius: 4px; font-weight: bold; display: none;"></div>
+      
       <form id="changePasswordForm">
-        <label for="oldPassword">Old Password</label>
-        <input type="password" id="oldPassword" name="oldPassword" required>
+        <label for="currentPassword">Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" required>
 
         <label for="newPassword">New Password</label>
         <input type="password" id="newPassword" name="newPassword" required>
+        <small style="display: block; color: #666; margin-bottom: 10px; font-size: 0.85em;">
+            Must be 8-64 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+        </small>
 
         <label for="confirmPassword">Confirm New Password</label>
         <input type="password" id="confirmPassword" name="confirmPassword" required>
@@ -50,7 +68,6 @@
     </div>
     
 
-    <!-- User Listings -->
     <div class="profile-listings">
       <h3 id="title">My Listings</h3>
 
@@ -69,6 +86,8 @@
               </div>
             </a>
           </div>
+          {{#if (or (eq ../user.role 'Administrator') (eq ../user.role 'Manager'))}}
+              {{/if}}
           {{/each}}
         </div>
       {{else}}
@@ -77,7 +96,6 @@
     </div>
   </div>
 
-  <!-- Edit Modal (kept as is) -->
   <div id="editProfileModal" class="modal">
     <div class="modal-content">
       <h2>Edit Profile</h2>
@@ -111,3 +129,102 @@
   
   <div id="profilePopup" class="popup success" style="display: none;"></div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Note: Assuming your existing script.js handles the 'Edit Profile' modal
+    
+    // Password Modal Elements
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const cancelChangePassword = document.getElementById('cancelChangePassword');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    const messageBox = document.getElementById('password-message');
+
+    // Open Password Modal
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordModal.style.display = 'flex'; // Use 'flex' or 'block' based on your CSS
+        });
+    }
+
+    // Close Password Modal
+    if (cancelChangePassword) {
+        cancelChangePassword.addEventListener('click', () => {
+            changePasswordModal.style.display = 'none';
+            changePasswordForm.reset();
+            messageBox.style.display = 'none';
+        });
+    }
+
+    // Handle Secure Form Submission
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Frontend validation: Check if new passwords match
+            if (newPassword !== confirmPassword) {
+                messageBox.style.display = 'block';
+                messageBox.style.backgroundColor = '#f2dede';
+                messageBox.style.color = '#a94442';
+                messageBox.textContent = 'New passwords do not match.';
+                return;
+            }
+            
+            // Temporarily disable the button to prevent double-clicks
+            const submitBtn = changePasswordForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
+            try {
+                // Send JSON payload to the secure backend controller
+                const response = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                
+                const data = await response.json();
+                
+                messageBox.style.display = 'block';
+                
+                if (response.ok) {
+                    // Success styling
+                    messageBox.style.backgroundColor = '#dff0d8';
+                    messageBox.style.color = '#3c763d';
+                    messageBox.textContent = data.message;
+                    
+                    changePasswordForm.reset();
+                    
+                    // Automatically close the modal after 3 seconds on success
+                    setTimeout(() => {
+                        changePasswordModal.style.display = 'none';
+                        messageBox.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // Backend Error (e.g., password too young, complexity failed)
+                    messageBox.style.backgroundColor = '#f2dede';
+                    messageBox.style.color = '#a94442';
+                    messageBox.textContent = data.message;
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                messageBox.style.display = 'block';
+                messageBox.style.backgroundColor = '#f2dede';
+                messageBox.style.color = '#a94442';
+                messageBox.textContent = 'An unexpected system error occurred. Please try again later.';
+            } finally {
+                // Re-enable the button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Password';
+            }
+        });
+    }
+});
+</script>

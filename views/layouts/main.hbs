@@ -34,21 +34,20 @@
   <div class="modal-box">
     <span class="close-btn" id="closeLogin">&times;</span>
 
-    <!-- Centered Login Title -->
     <h2 class="login-title">Login</h2>
 
     <form id="loginForm" class="login-form">
       <input type="email" name="dlsuEmail" placeholder="DLSU Email" required>
       <input type="password" name="password" placeholder="Password" required>
 
-      <!-- Centered Button -->
-      <div class="login-button-wrapper">
-        <button type="submit" class="btn-primary large-btn">Login</button>
+      <div class="login-button-wrapper" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px;">
+        <button type="submit" class="btn-primary large-btn" style="width: 100%;">Login</button>
+        
+        <a href="/forgot-password" style="font-size: 0.9em; color: #007bff; text-decoration: none;">Forgot Password?</a>
       </div>
     </form>
 
-    <!-- Centered Register Link -->
-    <div class="register-message">
+    <div class="register-message" style="margin-top: 20px;">
       <p>Don't have an account? <a href="/register">Register</a></p>
     </div>
 

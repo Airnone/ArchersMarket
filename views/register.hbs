@@ -1,6 +1,9 @@
 <div style="height: 3rem;"></div>
 <section class="register-section">
     <h2>Create an Account</h2>
+    
+    <div id="register-message" style="margin-bottom: 15px; padding: 10px; border-radius: 4px; font-weight: bold; display: none;"></div>
+
     <form id="registerForm">
         <div class="form-group">
             <label for="fullName">Full Name</label>
@@ -14,12 +17,15 @@
 
         <div class="form-group">
             <label for="studentId">Student ID</label>
-            <input type="text" id="studentId" name="studentId" placeholder="Enter your student ID" required>
+            <input type="text" id="studentId" name="studentId" placeholder="Enter your 8-digit student ID" required>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <small style="display: block; color: #666; margin-top: 5px; font-size: 0.85em;">
+                Must be 8-64 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+            </small>
         </div>
 
         <div class="form-group">
@@ -27,11 +33,117 @@
             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
         </div>
 
-        <button type="submit" class="btn-primary">Create Account</button>
-    </form>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+        <h3 style="font-size: 1.1em; margin-bottom: 15px;">Account Recovery</h3>
 
-    <div id="registerPopup" class="popup success" style="display: none;"></div>
+        <div class="form-group">
+            <label for="securityQuestion">Security Question</label>
+            <select id="securityQuestion" name="securityQuestion" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff;">
+                <option value="" disabled selected>Select a highly specific question...</option>
+                <option value="What is the exact make, model, and year of your first car?">What is the exact make, model, and year of your first car?</option>
+                <option value="What is the full name of the hospital where your youngest sibling was born?">What is the full name of the hospital where your youngest sibling was born?</option>
+                <option value="What were the exact cross streets of the neighborhood you lived in during third grade?">What were the exact cross streets of the neighborhood you lived in during third grade?</option>
+                <option value="What was the specific serial number or tag of your first childhood stuffed animal?">What was the specific serial number or tag of your first childhood stuffed animal?</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="securityAnswer">Security Answer</label>
+            <input type="text" id="securityAnswer" name="securityAnswer" placeholder="Enter your specific answer" required>
+            <small style="display: block; color: #666; margin-top: 5px; font-size: 0.85em;">
+                Keep this safe. You will need it to reset your password if you ever get locked out.
+            </small>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 15px;">Create Account</button>
+    </form>
 
     <p class="sign-in-link">Already have an account? <a href="/login">Sign In</a></p>
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.getElementById('registerForm');
+    const messageBox = document.getElementById('register-message');
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            // Extract all values
+            const fullName = document.getElementById('fullName').value.trim();
+            const dlsuEmail = document.getElementById('dlsuEmail').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const securityQuestion = document.getElementById('securityQuestion').value;
+            const securityAnswer = document.getElementById('securityAnswer').value.trim();
+
+            // 1. Frontend Validation: Check if passwords match
+            if (password !== confirmPassword) {
+                messageBox.style.display = 'block';
+                messageBox.style.backgroundColor = '#f2dede';
+                messageBox.style.color = '#a94442';
+                messageBox.style.border = '1px solid #ebccd1';
+                messageBox.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            // Temporarily disable the button to prevent double-clicks
+            const submitBtn = registerForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+
+            try {
+                // 2. Send JSON payload to the secure backend controller
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        fullName, 
+                        dlsuEmail, 
+                        studentId, 
+                        password,
+                        securityQuestion,
+                        securityAnswer
+                    })
+                });
+                
+                const data = await response.json();
+                messageBox.style.display = 'block';
+                
+                if (response.ok) {
+                    // Success: Registration passed and session created
+                    messageBox.style.backgroundColor = '#dff0d8';
+                    messageBox.style.color = '#3c763d';
+                    messageBox.style.border = '1px solid #d6e9c6';
+                    messageBox.textContent = 'Account created successfully! Redirecting...';
+                    
+                    // Redirect to the home page or profile after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    // Backend Error: (e.g., complexity failed, email exists, missing fields)
+                    messageBox.style.backgroundColor = '#f2dede';
+                    messageBox.style.color = '#a94442';
+                    messageBox.style.border = '1px solid #ebccd1';
+                    messageBox.textContent = data.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                messageBox.style.display = 'block';
+                messageBox.style.backgroundColor = '#f2dede';
+                messageBox.style.color = '#a94442';
+                messageBox.textContent = 'An unexpected system error occurred. Please try again later.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+    }
+});
+</script>
