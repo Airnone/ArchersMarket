@@ -91,6 +91,7 @@ const createListing = async (req, res) => {
     });
 
     await listing.save();
+    await logEvent('LISTING_CREATE', `Listing created successfully. Listing ID: ${listing._id}, Title: "${listing.title}", Category: ${listing.category}`, req, req.user._id);
     res.redirect("/sell?success=true");
   } catch (err) {
     await logEvent('SYSTEM_ERROR', `Error creating listing: ${err.message}`, req, req.user._id);
@@ -163,6 +164,7 @@ const editListing = async (req, res) => {
     }
 
     await listing.save();
+    await logEvent('LISTING_UPDATE', `Listing updated successfully. Listing ID: ${listing._id}, Title: "${listing.title}"`, req, req.user._id);
     res.status(200).send(listing._id); 
   } catch (err) {
     await logEvent('SYSTEM_ERROR', `Error editing listing: ${err.message}`, req, req.user._id);
