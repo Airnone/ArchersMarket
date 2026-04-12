@@ -17,8 +17,23 @@ document.addEventListener('DOMContentLoaded', () => {
         fileNameSpan.textContent = fileName;
       });
     }
+
+    // Modal UI Logic
+    const loginBtn = document.querySelector('a[href="/login"]');
+    const modal = document.getElementById('loginModal');
+    const closeBtn = document.getElementById('closeLogin');
   
-  });
+    // Show modal
+    loginBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.style.display = 'flex';
+    });
+  
+    // Close modal
+    closeBtn?.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+});
   
 // Check auth status
 async function checkAuthStatus() {
@@ -76,28 +91,38 @@ function setupProtectedButtons() {
 
 // Setup auth forms
 function setupAuthForms() {
-    // Login form
-    document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-        
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(formData))
-            });
-            
-            if (response.ok) {
-                window.location.href = getRedirectUrl() || '/';
-            } else {
-                const error = await response.json();
-                showError(form, error.message || 'Login failed');
-            }
-        } catch (error) {
-            showError(form, 'Network error. Please try again.');
+    
+    // Login form (Consolidated & Cleaned)
+    const loginForm = document.getElementById('loginForm');
+    loginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+  
+      // Clear any previous errors on the UI before trying again
+      const errorElement = form.parentElement.querySelector('.error-message');
+      if (errorElement) errorElement.style.display = 'none';
+  
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(Object.fromEntries(formData))
+        });
+  
+        if (response.ok) {
+          // ✅ Login successful – refresh page to update auth UI
+          window.location.reload();
+        } else {
+          const error = await response.json();
+          showError(form, error.message || 'Login failed');
         }
+      } catch (err) {
+        showError(form, 'Network error. Please try again.');
+      }
     });
     
     // Register form
@@ -169,100 +194,42 @@ function getRedirectUrl() {
     return params.get('redirect');
 }
 
+// Fixed showError function - targets existing red element instead of creating a new one
 function showError(form, message) {
-    let errorElement = form.querySelector('.error-message');
-    if (!errorElement) {
-        errorElement = document.createElement('div');
-        errorElement.className = 'error-message';
-        form.prepend(errorElement);
+    const errorElement = form.parentElement.querySelector('.error-message');
+    if (errorElement) {
+        errorElement.style.display = 'block';
+        errorElement.textContent = message;
     }
-    errorElement.textContent = message;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.querySelector('a[href="/login"]');
-    const modal = document.getElementById('loginModal');
-    const closeBtn = document.getElementById('closeLogin');
-    const loginForm = document.getElementById('loginForm');
-  
-    // Show modal
-    loginBtn?.addEventListener('click', (e) => {
-      e.preventDefault();
-      modal.style.display = 'flex';
-    });
-  
-    // Close modal
-    closeBtn?.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-  
-
-  
-    // Handle login form submission
-    loginForm?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-  
-      try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(Object.fromEntries(formData))
-        });
-  
-        if (response.ok) {
-          // ✅ Login successful – refresh page to update auth UI
-          window.location.reload();
-        } else {
-          const error = await response.json();
-          showError(form, error.message || 'Login failed');
-        }
-      } catch (err) {
-        showError(form, 'Network error. Please try again.');
-      }
-    });
-  
-    // Show error message in the modal
-    function showError(form, message) {
-      let errorEl = form.querySelector('.error-message');
-      if (!errorEl) {
-        errorEl = document.createElement('div');
-        errorEl.className = 'error-message';
-        form.prepend(errorEl);
-      }
-      errorEl.textContent = message;
-    }
-  });
-
-
-const modal = document.getElementById('editProfileModal');
+// --- Edit Profile Modal Logic ---
+const profileModal = document.getElementById('editProfileModal');
 const bioTextarea = document.getElementById('editBio');
 
-document.getElementById('editProfileBtn').addEventListener('click', () => {
-  modal.style.display = 'flex';
+document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+  if (!profileModal) return;
+  profileModal.style.display = 'flex';
 
   // Pre-fill existing values
   fetch('/api/user/data')
     .then(res => res.json())
     .then(data => {
       document.getElementById('editFullName').value = data.fullName || '';
-
       document.getElementById('editContact').value = data.contactNumber || '';
       document.getElementById('editFacebook').value = data.facebook || '';
-      bioTextarea.value = data.bio || '';
-      autoGrow(bioTextarea);
+      if(bioTextarea) {
+        bioTextarea.value = data.bio || '';
+        autoGrow(bioTextarea);
+      }
     });
 });
 
-
-document.getElementById('cancelProfileBtn').addEventListener('click', () => {
-  modal.style.display = 'none';
+document.getElementById('cancelProfileBtn')?.addEventListener('click', () => {
+  if (profileModal) profileModal.style.display = 'none';
 });
-document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+
+document.getElementById('editProfileForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
   
     const form = e.target;
@@ -273,12 +240,9 @@ document.getElementById('editProfileForm').addEventListener('submit', async (e) 
       body: formData
     });
     
-  
-    const data = await res.json();
-  
     if (res.ok) {
       // Close the modal
-      document.getElementById('editProfileModal').style.display = 'none';
+      if (profileModal) profileModal.style.display = 'none';
     
       // Show popup
       showPopup('✅ Profile updated!', 'success', 'profilePopup');
@@ -286,16 +250,16 @@ document.getElementById('editProfileForm').addEventListener('submit', async (e) 
       // Reload after a short delay
       setTimeout(() => location.reload(), 2000);
     }
-  });
+});
   
-
 // 🔁 Auto-grow bio textarea
 function autoGrow(element) {
   element.style.height = 'auto';
   element.style.height = (element.scrollHeight) + 'px';
 }
-bioTextarea.addEventListener('input', () => autoGrow(bioTextarea));
+bioTextarea?.addEventListener('input', () => autoGrow(bioTextarea));
 
+// Popup Helper
 function showPopup(message, type = 'success', popupId = 'registerPopup') {
   const popup = document.getElementById(popupId);
   if (!popup) return;
@@ -308,5 +272,3 @@ function showPopup(message, type = 'success', popupId = 'registerPopup') {
     popup.style.display = 'none';
   }, 3000);
 }
-
-  

@@ -4,6 +4,7 @@ const Listing = require('../models/listing');
 const authController = require('../controllers/authController');
 const adminController = require('../controllers/adminController');
 const Profile = require('../models/profile');
+const User = require('../models/user');
 
 // --- PUBLIC ROUTES ---
 
@@ -29,12 +30,16 @@ router.get('/', async (req, res) => {
 
 router.get('/browse', async (req, res) => {
   try {
+
     const category = req.query.category;
     let listings = category ? await Listing.find({ category: category }) : await Listing.find();
     res.render('browse', { title: 'Browse Listings', listings });
+    
   } catch (err) {
-    console.error(err);
-    res.render('browse', { title: 'Browse Listings', listings: [] });
+    res.status(500).render('error', { 
+      title: 'Internal Server Error', 
+      message: 'An unexpected error occurred while fetching listings. Please try again later.' 
+    });
   }
 });
 
@@ -89,21 +94,42 @@ router.get(
   '/profile', 
   authController.authorizeRoles('Administrator', 'Manager', 'Customer'), 
   async (req, res) => {
-    const profile = await Profile.findOne({ dlsuEmail: req.user.dlsuEmail });
-    const listings = await Listing.find({ seller: req.user._id });
+    
+    try {
+      const User = require('../models/user');
+      
+      const dbUser = await User.findById(req.user._id).lean(); 
+      
+      // If the user was deleted from DB but is still logged in, this prevents the crash
+      if (!dbUser) {
+         throw new Error("User document missing from database. Session is stale.");
+      }
+      
+      const profile = await Profile.findOne({ dlsuEmail: req.user.dlsuEmail }).lean();
+      
+      const listings = await Listing.find({ seller: req.user._id }).lean();
 
-    if (profile?.profileImage) {
-      req.user.profileImage = profile.profileImage.trim();
+      // Convert dates to strings safely
+      const lastSuccessStr = dbUser.lastSuccessfulLogin ? dbUser.lastSuccessfulLogin.toLocaleString() : null;
+      const lastFailedStr = dbUser.lastFailedLogin ? dbUser.lastFailedLogin.toLocaleString() : null;
+
+      if (profile && profile.profileImage) {
+        req.user.profileImage = profile.profileImage.trim();
+      }
+      res.render('profile', { 
+        user: req.user, 
+        profile: profile || {}, 
+        listings,
+        lastSuccess: lastSuccessStr,
+        lastFailed: lastFailedStr
+      });
+
+    } catch (error) {  
+      res.status(500).render('error', { 
+        title: 'Internal Server Error', 
+        message: 'An unexpected system error occurred. Please try again later.' 
+      });
     }
-
-    res.render('profile', { 
-      user: req.user, 
-      profile, 
-      listings,
-      // Pass the session variables we set during the login controller
-      lastSuccess: req.session.previousSuccessfulLogin,
-      lastFailed: req.session.previousFailedLogin
-    });
   }
 );
 

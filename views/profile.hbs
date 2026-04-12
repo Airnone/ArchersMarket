@@ -24,17 +24,17 @@
       
       <p><strong>Last Successful Login:</strong> 
         <span style="color: #28a745;">
-          {{#if lastSuccess}}{{formatDate lastSuccess "MMMM Do YYYY, h:mm:ss a"}}{{else}}First time logging in.{{/if}}
+          {{#if lastSuccess}}{{lastSuccess}}{{else}}First time logging in.{{/if}}
         </span>
       </p>
       
       <p><strong>Last Failed Login:</strong> 
         <span style="color: #d9534f;">
-          {{#if lastFailed}}{{formatDate lastFailed "MMMM Do YYYY, h:mm:ss a"}}{{else}}No failed attempts recorded.{{/if}}
+          {{#if lastFailed}}{{lastFailed}}{{else}}No failed attempts recorded.{{/if}}
         </span>
       </p>
     </div>
-
+    
     <div class="profile-actions">
       <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
       <button class="btn-secondary" id="changePasswordBtn">Change Password</button> 
@@ -82,19 +82,15 @@
               <div class="listing-details">
                 <h3>{{this.title}}</h3>
                 <p class="listing-price">₱{{this.price}}</p>
-                <span class="category-badge">{{capitalize this.category}}</span>
-              </div>
+                <span class="category-badge">{{this.category}}</span> </div>
             </a>
           </div>
-          {{#if (or (eq ../user.role 'Administrator') (eq ../user.role 'Manager'))}}
-              {{/if}}
           {{/each}}
         </div>
       {{else}}
         <p>You haven't listed anything yet.</p>
       {{/if}}
     </div>
-  </div>
 
   <div id="editProfileModal" class="modal">
     <div class="modal-content">

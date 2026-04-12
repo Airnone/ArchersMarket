@@ -205,10 +205,12 @@ exports.login = async (req, res, next) => {
          return next(err);
       }
       
-      await logEvent('AUTH_SUCCESS', `User logged in successfully.`, req, user._id);
-      return res.status(200).json({ 
-        message: 'Login successful.',
-        redirectUrl: '/' // Or redirect to '/profile' or '/browse'
+      req.session.save(async () => {
+        await logEvent('AUTH_SUCCESS', `User logged in successfully.`, req, user._id);
+        return res.status(200).json({ 
+          message: 'Login successful.',
+          redirectUrl: '/' 
+        });
       });
     });
 

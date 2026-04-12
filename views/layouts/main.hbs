@@ -22,44 +22,44 @@
     <div class="alert alert-success">{{success_msg}}</div>
   {{/if}}
   {{#if error_msg}}
-    <div class="alert alert-danger">{{error_msg}}</div>
   {{/if}}
 
   {{{body}}}
 
   {{> footer}}
 
-  <!-- 🔽 INSERT LOGIN MODAL HERE -->
-<div id="loginModal" class="modal-overlay">
-  <div class="modal-box">
-    <span class="close-btn" id="closeLogin">&times;</span>
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-box">
+      <span class="close-btn" id="closeLogin">&times;</span>
 
-    <h2 class="login-title">Login</h2>
+      <h2 class="login-title">Login</h2>
 
-    <form id="loginForm" class="login-form">
-      <input type="email" name="dlsuEmail" placeholder="DLSU Email" required>
-      <input type="password" name="password" placeholder="Password" required>
+      <form id="loginForm" class="login-form">
+        <input type="email" name="dlsuEmail" placeholder="DLSU Email" required>
+        <input type="password" name="password" placeholder="Password" required>
 
-      <div class="login-button-wrapper" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px;">
-        <button type="submit" class="btn-primary large-btn" style="width: 100%;">Login</button>
-        
-        <a href="/forgot-password" style="font-size: 0.9em; color: #007bff; text-decoration: none;">Forgot Password?</a>
+        <div class="login-button-wrapper" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px;">
+          <button type="submit" class="btn-primary large-btn" style="width: 100%;">Login</button>
+          
+          <a href="/forgot-password" class="btn-secondary large-btn" style="width: 100%; text-align: center; box-sizing: border-box; text-decoration: none;">
+            Forgot Password?
+          </a>
+        </div>
+      </form>
+
+      <div class="register-message" style="margin-top: 20px;">
+        <p>Don't have an account? <a href="/register">Register</a></p>
       </div>
-    </form>
 
-    <div class="register-message" style="margin-top: 20px;">
-      <p>Don't have an account? <a href="/register">Register</a></p>
+      <div class="error-message" style="display: none; color: #c62828; margin-top: 15px; text-align: center; font-weight: bold;"></div>
     </div>
-
-    <div class="error-message"></div>
   </div>
-</div>
 
   <script src="/js/script.js"></script>
+  <script>
+    // Force preload of background image used in CSS
+    const bg = new Image();
+    bg.src = '/images/practice-background.webp';
+  </script>
 </body>
 </html>
-<script>
-  // Force preload of background image used in CSS
-  const bg = new Image();
-  bg.src = '/images/practice-background.webp';
-</script>

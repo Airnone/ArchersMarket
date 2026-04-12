@@ -72,7 +72,10 @@ const createListing = async (req, res) => {
         req.user._id
       );
       // 3. Reject completely (no sanitization)
-      return res.status(400).send(`Error: ${validationError}`);
+      return res.status(400).render('error', { 
+        title: 'Validation Failed', 
+        message: validationError 
+    });
     }
 
     const { title, description, price, category, condition } = req.body;
