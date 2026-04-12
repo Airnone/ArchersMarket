@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const { logEvent } = require('../utils/logger');
 
 // Register (Public)
 router.post('/register', authController.register);
@@ -22,7 +23,8 @@ router.post('/reset-password', authController.resetPasswordWithQuestion);
 router.get(
   '/logout', 
   authController.authorizeRoles('Administrator', 'Manager', 'Customer'), 
-  (req, res, next) => {
+  async (req, res, next) => {
+    await logEvent('AUTH_LOGOUT', 'User logged out successfully.', req, req.user._id);
     req.logout((err) => {
       if (err) return next(err);
       req.flash('success_msg', 'Logged out successfully');
