@@ -12,8 +12,13 @@ const logSchema = new mongoose.Schema({
     enum: [
       'AUTH_SUCCESS', 
       'AUTH_FAILURE', 
+      'AUTH_LOGOUT',
       'ACCESS_DENIED', 
       'VALIDATION_ERROR', 
+      'ACCESS_SUCCESS',
+      'LISTING_CREATE', 
+      'LISTING_UPDATE',  
+      'LISTING_DELETE',
       'SYSTEM_ERROR'
     ]
   },
