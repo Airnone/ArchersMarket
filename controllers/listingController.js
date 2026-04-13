@@ -120,7 +120,7 @@ const deleteListing = async (req, res) => {
     }
 
     await Listing.findByIdAndDelete(req.params.id);
-    await logEvent('ACCESS_SUCCESS', `Listing deleted successfully. Listing ID: ${req.params.id}`, req, req.user._id);
+    await logEvent('LISTING_DELETE', `Listing deleted successfully. Listing ID: ${req.params.id}`, req, req.user._id);
     res.status(200).redirect("/browse");
   } catch (error) {
     res.status(500).send("Server error");
