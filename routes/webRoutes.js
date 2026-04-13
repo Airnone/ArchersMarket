@@ -61,7 +61,7 @@ router.get('/product/:id', async (req, res) => {
     let canModify = false;
     if (req.user) {
       const isOwner = String(listing.seller._id) === String(req.user._id);
-      const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Moderator';
+      const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Manager';
       canModify = isOwner || isElevatedUser;
     }
 
