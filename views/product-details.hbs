@@ -67,7 +67,7 @@
   <span class="icon">↗</span> Share
 </button>
 
-  {{#if (eq listing.seller._id user._id)}}
+  {{#if canModify}}
       <button
       type="button"
       id="openEditModal"
@@ -85,12 +85,8 @@
     <button class="btn-outline btn-red" id="openDeleteModal" data-id="{{listing._id}}">
       <span class="icon">🗑️</span> Delete
     </button>
-
-
   {{/if}}
 </div>
-
-
       <!-- Share Popup -->
       <div id="sharePopup" class="popup success" style="display: none;">
         🔗 Link copied to clipboard!

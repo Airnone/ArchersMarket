@@ -48,6 +48,7 @@ router.get('/product/:id', async (req, res) => {
     const listing = await Listing.findById(req.params.id).populate('seller');
     if (!listing) throw new Error('Listing not found');
 
+    // Fetch seller's extra profile info
     const sellerProfile = await Profile.findOne({ dlsuEmail: listing.seller.dlsuEmail });
     
     if (sellerProfile) {
@@ -56,9 +57,19 @@ router.get('/product/:id', async (req, res) => {
       listing.seller.facebook = sellerProfile.facebook || '';
     }
 
+    // --- NEW RBAC LOGIC FOR EDIT/DELETE BUTTONS ---
+    let canModify = false;
+    if (req.user) {
+      const isOwner = String(listing.seller._id) === String(req.user._id);
+      const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Moderator';
+      canModify = isOwner || isElevatedUser;
+    }
+
     res.render('product-details', {
       title: listing.title || 'Product Details',
-      listing
+      listing,
+      user: req.user,  // Passing the logged-in user to Handlebars
+      canModify        // Passing the magic flag to Handlebars!
     });
   } catch (err) {
     console.error(err);

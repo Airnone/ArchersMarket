@@ -37,23 +37,43 @@ const validateListingInput = (data) => {
   return null; // Passes all validation
 };
 
+// 🔹 FIXED: This function now correctly fetches ALL listings for the browse page
 const getListings = async (req, res) => {
   try {
-    const listings = await Listing.find().sort({ createdAt: -1 });
-    res.render("browse", { listings });
+    const listings = await Listing.find().populate('seller', 'fullName studentId');
+    res.render('browse', { listings, user: req.user });
   } catch (error) {
+    console.error("Error fetching listings:", error);
     res.status(500).send("Server error");
   }
 };
 
+// 🔹 Single listing logic with RBAC
 const getListingById = async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id).populate('seller');
+    
     if (!listing) {
       return res.status(404).render("error", { message: "Listing not found" });
     }
-    res.render("product-details", { listing });
+
+    // Role-Based Logic: Determine if the viewer can edit/delete
+    let canModify = false;
+    if (req.user) {
+      const isOwner = String(listing.seller._id) === String(req.user._id);
+      const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Moderator';
+      
+      canModify = isOwner || isElevatedUser;
+    }
+
+    res.render("product-details", { 
+      listing,
+      user: req.user, 
+      canModify 
+    });
+    
   } catch (error) {
+    console.error("Error fetching listing details:", error);
     res.status(500).send("Server error");
   }
 };
@@ -110,11 +130,11 @@ const deleteListing = async (req, res) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    // Role-Based Logic: Only the seller OR an Administrator/Manager can delete
+    // Role-Based Logic: Only the seller OR an Administrator/Moderator can delete
     const isSeller = String(listing.seller) === String(req.user._id);
-    const isModerator = req.user.role === 'Administrator' || req.user.role === 'Manager';
+    const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Moderator';
 
-    if (!isSeller && !isModerator) {
+    if (!isSeller && !isElevatedUser) {
       await logEvent('ACCESS_DENIED', `User attempted to delete a listing they do not own. Listing ID: ${listing._id}`, req, req.user._id);
       return res.status(403).json({ message: "Unauthorized to delete this listing" });
     }
@@ -135,8 +155,11 @@ const editListing = async (req, res) => {
       return res.status(404).json({ message: "Listing not found" });
     }
 
-    // Ensure the user is the actual seller before editing
-    if (String(listing.seller) !== String(req.user._id)) {
+    // Role-Based Logic: Only the seller OR an Administrator/Moderator can edit
+    const isSeller = String(listing.seller) === String(req.user._id);
+    const isElevatedUser = req.user.role === 'Administrator' || req.user.role === 'Moderator';
+
+    if (!isSeller && !isElevatedUser) {
       await logEvent('ACCESS_DENIED', `User attempted to edit a listing they do not own. Listing ID: ${listing._id}`, req, req.user._id);
       return res.status(403).json({ message: "Unauthorized to edit this listing" });
     }
