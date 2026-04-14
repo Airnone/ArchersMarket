@@ -8,6 +8,9 @@
             <option value="AUTH_SUCCESS" {{#if (eq currentFilter "AUTH_SUCCESS")}}selected{{/if}}>Authentication Success</option>
             <option value="AUTH_FAILURE" {{#if (eq currentFilter "AUTH_FAILURE")}}selected{{/if}}>Authentication Failure</option>
             <option value="ACCESS_DENIED" {{#if (eq currentFilter "ACCESS_DENIED")}}selected{{/if}}>Access Denied</option>
+            <option value="LISTING_CREATE" {{#if (eq currentFilter "LISTING_CREATE")}}selected{{/if}}>Listing Created</option>
+            <option value="LISTING_UPDATE" {{#if (eq currentFilter "LISTING_UPDATE")}}selected{{/if}}>Listing Updated</option>
+            <option value="LISTING_DELETE" {{#if (eq currentFilter "LISTING_DELETE")}}selected{{/if}}>Listing Deleted</option>
             <option value="VALIDATION_ERROR" {{#if (eq currentFilter "VALIDATION_ERROR")}}selected{{/if}}>Validation Error</option>
             <option value="SYSTEM_ERROR" {{#if (eq currentFilter "SYSTEM_ERROR")}}selected{{/if}}>System Error</option>
         </select>
